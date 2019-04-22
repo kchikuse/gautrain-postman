@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "01b53f7d-d327-4c10-9694-c1a3d4673d42",
+		"name": "Gautrain",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get list of  stations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://www.gautrain.co.za/commuter/stations",
+					"protocol": "https",
+					"host": [
+						"www",
+						"gautrain",
+						"co",
+						"za"
+					],
+					"path": [
+						"commuter",
+						"stations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get route details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://www.gautrain.co.za/commuter/route?orgLng=28.1897&orgLat=-25.85161&dstLng=28.04148&dstLat=-26.19558&publicOperators=&isParking=false&earliestArrival=&isGeometryReturned=true&isImmutable=false",
+					"protocol": "https",
+					"host": [
+						"www",
+						"gautrain",
+						"co",
+						"za"
+					],
+					"path": [
+						"commuter",
+						"route"
+					],
+					"query": [
+						{
+							"key": "orgLng",
+							"value": "28.1897"
+						},
+						{
+							"key": "orgLat",
+							"value": "-25.85161"
+						},
+						{
+							"key": "dstLng",
+							"value": "28.04148"
+						},
+						{
+							"key": "dstLat",
+							"value": "-26.19558"
+						},
+						{
+							"key": "publicOperators",
+							"value": ""
+						},
+						{
+							"key": "isParking",
+							"value": "false"
+						},
+						{
+							"key": "earliestArrival",
+							"value": ""
+						},
+						{
+							"key": "isGeometryReturned",
+							"value": "true"
+						},
+						{
+							"key": "isImmutable",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1: Get CSRF token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "49fbb945-cb37-4b2a-b07c-20de4e155a45",
+						"exec": [
+							"let html = cheerio(responseBody);",
+							"",
+							"let csrf = html.find(\"input[name='_csrf']\").val();",
+							"",
+							"postman.setGlobalVariable(\"csrf-token\", csrf);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://www.gautrain.co.za/login",
+					"protocol": "https",
+					"host": [
+						"www",
+						"gautrain",
+						"co",
+						"za"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2: Set session cookie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "41e8b5aa-136f-4791-8dde-7348dcbe0eff",
+						"exec": [
+							"let cookie = postman.getResponseCookie(\"SESSION\").value;",
+							"",
+							"postman.setGlobalVariable(\"csrf-cookie\", cookie)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f2cc326a-06ad-4fba-8d5e-55fe24624192",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "YOUR_GAUTRAIN_EMAIL",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "YOUR_GAUTRAIN_PASSWORD",
+							"type": "text"
+						},
+						{
+							"key": "_csrf",
+							"value": "{{csrf-token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://www.gautrain.co.za/login",
+					"protocol": "https",
+					"host": [
+						"www",
+						"gautrain",
+						"co",
+						"za"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3: Get card details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "SESSION={{csrf-cookie}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://www.gautrain.co.za/commuter/transitcards",
+					"protocol": "https",
+					"host": [
+						"www",
+						"gautrain",
+						"co",
+						"za"
+					],
+					"path": [
+						"commuter",
+						"transitcards"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
